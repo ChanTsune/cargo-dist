@@ -338,6 +338,16 @@ install() {
     # Replace the temporary cargo home with the calculated one
     RECEIPT=$(echo "$RECEIPT" | sed "s,AXO_CARGO_HOME,$_install_dir,")
 
+    # ...ignoring all of the above, if the user asked us to completely override
+    # those choices and use a specified directory, then pick that now
+    if [ -n "${CARGO_DIST_FORCE_INSTALL_DIR:-}" ]; then
+        _install_home="$CARGO_DIST_FORCE_INSTALL_DIR"
+        _install_dir="$CARGO_DIST_FORCE_INSTALL_DIR/bin"
+        _env_script_path="$CARGO_DIST_FORCE_INSTALL_DIR/env"
+        _install_dir_expr='$CARGO_DIST_FORCE_INSTALL_DIR/bin'
+        _env_script_path_expr='$CARGO_DIST_FORCE_INSTALL_DIR/env'
+    fi
+
     say "installing to $_install_dir"
     ensure mkdir -p "$_install_dir"
 
@@ -1387,5 +1397,3 @@ jobs:
           body: ${{ fromJson(needs.host.outputs.val).announcement_github_body }}
           prerelease: ${{ fromJson(needs.host.outputs.val).announcement_is_prerelease }}
           artifacts: "artifacts/*"
-
-
